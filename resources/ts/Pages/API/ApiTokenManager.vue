@@ -1,3 +1,76 @@
+<script lang="ts" setup>
+import {ref} from "vue";
+import Button from "@/Jetstream/Elements/Button/Button.vue";
+import DangerButton from "@/Jetstream/Elements/Button/DangerButton.vue";
+import SecondaryButton from "@/Jetstream/Elements/Button/SecondaryButton.vue";
+import Checkbox from "@/Jetstream/Elements/Checkbox.vue";
+import Input from "@/Jetstream/Elements/Input.vue";
+import Label from "@/Jetstream/Elements/Label.vue";
+import ActionMessage from "@/Jetstream/Elements/Section/ActionMessage.vue";
+import ActionSection from "@/Jetstream/Elements/Section/ActionSection.vue";
+import FormSection from "@/Jetstream/Elements/Section/FormSection.vue";
+import SectionBorder from "@/Jetstream/Elements/Section/SectionBorder.vue";
+import ConfirmationModal from "@/Jetstream/Modal/ConfirmationModal.vue";
+import DialogModal from "@/Jetstream/Modal/DialogModal.vue";
+import InputError from "@/Jetstream/Validation/InputError.vue";
+import {useForm} from "@inertiajs/inertia-vue3";
+
+const props = defineProps([
+    "tokens",
+    "availablePermissions",
+    "defaultPermissions",
+]);
+
+const createApiTokenForm     = useForm({
+    name        : "",
+    permissions : props.defaultPermissions,
+});
+const updateApiTokenForm     = useForm({
+    permissions : []
+});
+const deleteApiTokenForm     = useForm({});
+const displayingToken        = ref(false);
+const managingPermissionsFor = ref(null);
+const apiTokenBeingDeleted   = ref(null);
+
+function createApiToken() {
+    createApiTokenForm.post(route("api-tokens.store"), {
+        preserveScroll : true,
+        onSuccess      : () => {
+            displayingToken.value = true;
+            createApiTokenForm.reset();
+        }
+    });
+}
+
+function manageApiTokenPermissions(token) {
+    updateApiTokenForm.permissions = token.abilities;
+
+    managingPermissionsFor.value = token;
+}
+
+function updateApiToken() {
+    updateApiTokenForm.put(route("api-tokens.update", managingPermissionsFor), {
+        preserveScroll : true,
+        preserveState  : true,
+        onSuccess      : () => (managingPermissionsFor.value = null),
+    });
+}
+
+function confirmApiTokenDeletion(token) {
+    apiTokenBeingDeleted.value = token;
+}
+
+function deleteApiToken() {
+    deleteApiTokenForm.delete(route("api-tokens.destroy", apiTokenBeingDeleted.value), {
+        preserveScroll : true,
+        preserveState  : true,
+        onSuccess      : () => (apiTokenBeingDeleted.value = null),
+    });
+}
+
+</script>
+
 <template>
     <div>
         <!-- Generate API Token -->
@@ -162,103 +235,3 @@
         </ConfirmationModal>
     </div>
 </template>
-
-<script lang="ts">
-import {defineComponent} from "vue";
-import Button from "@/Jetstream/Elements/Button/Button.vue";
-import DangerButton from "@/Jetstream/Elements/Button/DangerButton.vue";
-import SecondaryButton from "@/Jetstream/Elements/Button/SecondaryButton.vue";
-import Checkbox from "@/Jetstream/Elements/Checkbox.vue";
-import Input from "@/Jetstream/Elements/Input.vue";
-import Label from "@/Jetstream/Elements/Label.vue";
-import ActionMessage from "@/Jetstream/Elements/Section/ActionMessage.vue";
-import ActionSection from "@/Jetstream/Elements/Section/ActionSection.vue";
-import FormSection from "@/Jetstream/Elements/Section/FormSection.vue";
-import SectionBorder from "@/Jetstream/Elements/Section/SectionBorder.vue";
-import ConfirmationModal from "@/Jetstream/Modal/ConfirmationModal.vue";
-import DialogModal from "@/Jetstream/Modal/DialogModal.vue";
-import InputError from "@/Jetstream/Validation/InputError.vue";
-
-export default defineComponent({
-    name : "ApiTokenManager",
-
-    components : {
-        DangerButton,
-        ConfirmationModal,
-        SecondaryButton,
-        DialogModal,
-        ActionSection,
-        SectionBorder,
-        Button,
-        ActionMessage,
-        Checkbox,
-        InputError,
-        Input,
-        Label,
-        FormSection,
-    },
-
-    props : [
-        "tokens",
-        "availablePermissions",
-        "defaultPermissions",
-    ],
-
-    data() {
-        return {
-            createApiTokenForm : this.$inertia.form({
-                name        : "",
-                permissions : this.defaultPermissions,
-            }),
-
-            updateApiTokenForm : this.$inertia.form({
-                permissions : []
-            }),
-
-            deleteApiTokenForm : this.$inertia.form(),
-
-            displayingToken        : false,
-            managingPermissionsFor : null,
-            apiTokenBeingDeleted   : null,
-        };
-    },
-
-    methods : {
-        createApiToken() {
-            this.createApiTokenForm.post(route("api-tokens.store"), {
-                preserveScroll : true,
-                onSuccess      : () => {
-                    this.displayingToken = true;
-                    this.createApiTokenForm.reset();
-                }
-            });
-        },
-
-        manageApiTokenPermissions(token) {
-            this.updateApiTokenForm.permissions = token.abilities;
-
-            this.managingPermissionsFor = token;
-        },
-
-        updateApiToken() {
-            this.updateApiTokenForm.put(route("api-tokens.update", this.managingPermissionsFor), {
-                preserveScroll : true,
-                preserveState  : true,
-                onSuccess      : () => (this.managingPermissionsFor = null),
-            });
-        },
-
-        confirmApiTokenDeletion(token) {
-            this.apiTokenBeingDeleted = token;
-        },
-
-        deleteApiToken() {
-            this.deleteApiTokenForm.delete(route("api-tokens.destroy", this.apiTokenBeingDeleted), {
-                preserveScroll : true,
-                preserveState  : true,
-                onSuccess      : () => (this.apiTokenBeingDeleted = null),
-            });
-        },
-    },
-});
-</script>

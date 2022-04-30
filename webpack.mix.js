@@ -12,35 +12,34 @@ const mix = require('laravel-mix');
  */
 
 mix
-    .js('resources/ts/app.ts', 'public/js')
-    .vue({
-        version : 3,
+	.js('resources/ts/app.ts', 'public/js')
+	.vue({version : 3})
+	.postCss('resources/css/app.css', 'public/css', [
+		require('postcss-import'),
+		require('tailwindcss'),
+	])
+	.webpackConfig({
+		module  : {
+			rules : [
+				{
+					test    : /\.tsx?$/,
+					loader  : 'ts-loader',
+					options : {appendTsSuffixTo : [/\.vue$/]},
+					exclude : /node_modules/,
+				},
+			],
+		},
+		resolve : {
+			extensions : ['*', '.js', '.jsx', '.vue', '.ts', '.tsx'],
+		},
+	})
+    .alias({
+        '@' : 'resources/ts',
     })
-    .postCss('resources/css/app.css', 'public/css', [
-        require('postcss-import'),
-        require('tailwindcss'),
-    ])
-    .webpackConfig({
-        module  : {
-            rules : [
-                {
-                    test    : /\.tsx?$/,
-                    loader  : 'ts-loader',
-                    options : {appendTsSuffixTo : [/\.vue$/]},
-                    exclude : /node_modules/,
-                },
-            ],
-        },
-        resolve : {
-            extensions : ['*', '.js', '.jsx', '.vue', '.ts', '.tsx'],
-        },
-    })
-    .webpackConfig(require('./webpack.config'));
+	.webpackConfig(require('./webpack.config'));
 
 if (mix.inProduction()) {
-    mix.version();
+	mix.version();
 }
 
 mix.disableNotifications();
-
-mix.dumpWebpackConfig();

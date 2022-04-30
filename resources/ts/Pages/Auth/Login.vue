@@ -1,3 +1,32 @@
+<script lang="ts" setup>
+import {useForm} from "@inertiajs/inertia-vue3";
+import AuthenticationCard from "./../../Jetstream/Authentication/AuthenticationCard.vue";
+import AuthenticationCardLogo from "@/Jetstream/Authentication/AuthenticationCardLogo.vue";
+import Button from "@/Jetstream/Elements/Button/Button.vue";
+import ValidationErrors from "@/Jetstream/Validation/ValidationErrors.vue";
+import Checkbox from "@/Jetstream/Elements/Checkbox.vue";
+import Label from "@/Jetstream/Elements/Label.vue";
+import Input from "@/Jetstream/Elements/Input.vue";
+
+const props = defineProps({
+    canResetPassword : Boolean,
+    status           : String
+});
+
+const form = useForm({
+    email    : "",
+    password : "",
+    remember : false
+});
+
+function submit() {
+    form.transform(data => ({...data, remember : form.remember ? "on" : ""}))
+        .post(route("login"), {
+            onFinish : () => form.reset("password"),
+        });
+}
+</script>
+
 <template>
     <AuthenticationCard>
         <template #logo>
@@ -40,58 +69,3 @@
         </form>
     </AuthenticationCard>
 </template>
-
-<script lang="ts">
-
-import {defineComponent} from "vue";
-import AuthenticationCard from "./../../Jetstream/Authentication/AuthenticationCard.vue";
-import AuthenticationCardLogo from "@/Jetstream/Authentication/AuthenticationCardLogo.vue";
-import Button from "@/Jetstream/Elements/Button/Button.vue";
-import ValidationErrors from "@/Jetstream/Validation/ValidationErrors.vue";
-import Checkbox from "@/Jetstream/Elements/Checkbox.vue";
-import Label from "@/Jetstream/Elements/Label.vue";
-import Input from "@/Jetstream/Elements/Input.vue";
-
-
-export default defineComponent({
-    name       : "Login",
-    components : {
-        AuthenticationCard,
-        AuthenticationCardLogo,
-        Button,
-        Input,
-        Checkbox,
-        Label,
-        ValidationErrors,
-    },
-
-    props : {
-        canResetPassword : Boolean,
-        status           : String
-    },
-
-    data() {
-        return {
-            form : this.$inertia.form({
-                email    : "",
-                password : "",
-                remember : false
-            })
-        };
-    },
-
-    methods : {
-        submit() {
-            this.form
-                .transform(data => ({
-                    ...data,
-                    remember : this.form.remember ? "on" : ""
-                }))
-                .post(this.route("login"), {
-                    onFinish : () => this.form.reset("password"),
-                });
-        }
-    }
-});
-
-</script>

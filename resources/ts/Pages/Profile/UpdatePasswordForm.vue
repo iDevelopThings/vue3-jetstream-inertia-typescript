@@ -1,3 +1,43 @@
+<script lang="ts" setup>
+import {ref} from "vue";
+import Button from "@/Jetstream/Elements/Button/Button.vue";
+import ActionMessage from "@/Jetstream/Elements/Section/ActionMessage.vue";
+import InputError from "@/Jetstream/Validation/InputError.vue";
+import FormSection from "@/Jetstream/Elements/Section/FormSection.vue";
+import Label from "@/Jetstream/Elements/Label.vue";
+import Input from "@/Jetstream/Elements/Input.vue";
+import {useForm} from "@inertiajs/inertia-vue3";
+
+const password         = ref<HTMLInputElement>();
+const current_password = ref<HTMLInputElement>();
+
+const form = useForm({
+    current_password      : "",
+    password              : "",
+    password_confirmation : "",
+});
+
+
+function updatePassword() {
+    form.put(route("user-password.update"), {
+        errorBag       : "updatePassword",
+        preserveScroll : true,
+        onSuccess      : () => form.reset(),
+        onError        : () => {
+            if (form.errors.password) {
+                form.reset("password", "password_confirmation");
+                password.value.focus();
+            }
+
+            if (form.errors.current_password) {
+                form.reset("current_password");
+                current_password.value.focus();
+            }
+        }
+    });
+}
+</script>
+
 <template>
     <FormSection @submitted="updatePassword">
         <template #title>
@@ -39,57 +79,3 @@
         </template>
     </FormSection>
 </template>
-
-<script lang="ts">
-import {defineComponent} from "vue";
-import Button from "@/Jetstream/Elements/Button/Button.vue";
-import ActionMessage from "@/Jetstream/Elements/Section/ActionMessage.vue";
-import InputError from "@/Jetstream/Validation/InputError.vue";
-import FormSection from "@/Jetstream/Elements/Section/FormSection.vue";
-import Label from "@/Jetstream/Elements/Label.vue";
-import Input from "@/Jetstream/Elements/Input.vue";
-
-export default defineComponent({
-    name : "UpdatePasswordForm",
-
-    components : {
-        Button,
-        ActionMessage,
-        InputError,
-        FormSection,
-        Label,
-        Input,
-    },
-
-    data() {
-        return {
-            form : this.$inertia.form({
-                current_password      : "",
-                password              : "",
-                password_confirmation : "",
-            }),
-        };
-    },
-
-    methods : {
-        updatePassword() {
-            this.form.put(route("user-password.update"), {
-                errorBag       : "updatePassword",
-                preserveScroll : true,
-                onSuccess      : () => this.form.reset(),
-                onError        : () => {
-                    if (this.form.errors.password) {
-                        this.form.reset("password", "password_confirmation");
-                        this.$refs.password.focus();
-                    }
-
-                    if (this.form.errors.current_password) {
-                        this.form.reset("current_password");
-                        this.$refs.current_password.focus();
-                    }
-                }
-            });
-        },
-    },
-});
-</script>

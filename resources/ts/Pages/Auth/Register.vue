@@ -1,3 +1,29 @@
+<script lang="ts" setup>
+import AuthenticationCard from "@/Jetstream/Authentication/AuthenticationCard.vue";
+import AuthenticationCardLogo from "@/Jetstream/Authentication/AuthenticationCardLogo.vue";
+import Button from "@/Jetstream/Elements/Button/Button.vue";
+import Input from "@/Jetstream/Elements/Input.vue";
+import Checkbox from "@/Jetstream/Elements/Checkbox.vue";
+import Label from "@/Jetstream/Elements/Label.vue";
+import ValidationErrors from "@/Jetstream/Validation/ValidationErrors.vue";
+import {useForm} from "@inertiajs/inertia-vue3";
+
+const form = useForm({
+    name                  : "",
+    email                 : "",
+    password              : "",
+    password_confirmation : "",
+    terms                 : false,
+});
+
+function submit() {
+    form.post(route("register"), {
+        onFinish : () => form.reset("password", "password_confirmation"),
+    });
+}
+
+</script>
+
 <template>
     <AuthenticationCard>
         <template #logo>
@@ -54,49 +80,3 @@
         </form>
     </AuthenticationCard>
 </template>
-
-<script lang="ts">
-
-
-import {defineComponent} from "vue";
-import AuthenticationCard from "@/Jetstream/Authentication/AuthenticationCard.vue";
-import AuthenticationCardLogo from "@/Jetstream/Authentication/AuthenticationCardLogo.vue";
-import Button from "@/Jetstream/Elements/Button/Button.vue";
-import Input from "@/Jetstream/Elements/Input.vue";
-import Checkbox from "@/Jetstream/Elements/Checkbox.vue";
-import Label from "@/Jetstream/Elements/Label.vue";
-import ValidationErrors from "@/Jetstream/Validation/ValidationErrors.vue";
-
-
-export default defineComponent({
-    components : {
-        AuthenticationCard,
-        AuthenticationCardLogo,
-        Button,
-        Input,
-        Checkbox,
-        Label,
-        ValidationErrors
-    },
-
-    data() {
-        return {
-            form : this.$inertia.form({
-                name                  : "",
-                email                 : "",
-                password              : "",
-                password_confirmation : "",
-                terms                 : false,
-            })
-        };
-    },
-
-    methods : {
-        submit() {
-            this.form.post(this.route("register"), {
-                onFinish : () => this.form.reset("password", "password_confirmation"),
-            });
-        }
-    }
-});
-</script>

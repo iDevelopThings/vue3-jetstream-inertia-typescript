@@ -1,3 +1,43 @@
+<script lang="ts" setup>
+import {defineComponent, ref} from "vue";
+import Button from "@/Jetstream/Elements/Button/Button.vue";
+import SecondaryButton from "@/Jetstream/Elements/Button/SecondaryButton.vue";
+import Input from "@/Jetstream/Elements/Input.vue";
+import ActionMessage from "@/Jetstream/Elements/Section/ActionMessage.vue";
+import ActionSection from "@/Jetstream/Elements/Section/ActionSection.vue";
+import DialogModal from "@/Jetstream/Modal/DialogModal.vue";
+import InputError from "@/Jetstream/Validation/InputError.vue";
+import {useForm} from "@inertiajs/inertia-vue3";
+
+const props = defineProps(["sessions"]);
+
+const password         = ref<HTMLInputElement>();
+const confirmingLogout = ref(false);
+const form             = useForm({password : ""});
+
+function confirmLogout() {
+    confirmingLogout.value = true;
+    setTimeout(() => password.value.focus(), 250);
+}
+
+function logoutOtherBrowserSessions() {
+    form.delete(route("other-browser-sessions.destroy"), {
+        preserveScroll : true,
+        onSuccess      : () => closeModal(),
+        onError        : () => password.value.focus(),
+        onFinish       : () => form.reset(),
+    });
+}
+
+function closeModal() {
+    confirmingLogout.value = false;
+
+    form.reset();
+}
+
+</script>
+
+
 <template>
     <ActionSection>
         <template #title>
@@ -103,64 +143,3 @@
         </template>
     </ActionSection>
 </template>
-
-<script lang="ts">
-import {defineComponent} from "vue";
-import Button from "@/Jetstream/Elements/Button/Button.vue";
-import SecondaryButton from "@/Jetstream/Elements/Button/SecondaryButton.vue";
-import Input from "@/Jetstream/Elements/Input.vue";
-import ActionMessage from "@/Jetstream/Elements/Section/ActionMessage.vue";
-import ActionSection from "@/Jetstream/Elements/Section/ActionSection.vue";
-import DialogModal from "@/Jetstream/Modal/DialogModal.vue";
-import InputError from "@/Jetstream/Validation/InputError.vue";
-
-
-export default defineComponent({
-    name : "LogoutOtherBrowserSessionsForm",
-
-    props : ["sessions"],
-
-    components : {
-        SecondaryButton,
-        InputError,
-        Input,
-        DialogModal,
-        ActionMessage,
-        Button,
-        ActionSection,
-    },
-
-    data() {
-        return {
-            confirmingLogout : false,
-
-            form : this.$inertia.form({
-                password : "",
-            })
-        };
-    },
-
-    methods : {
-        confirmLogout() {
-            this.confirmingLogout = true;
-
-            setTimeout(() => this.$refs.password.focus(), 250);
-        },
-
-        logoutOtherBrowserSessions() {
-            this.form.delete(route("other-browser-sessions.destroy"), {
-                preserveScroll : true,
-                onSuccess      : () => this.closeModal(),
-                onError        : () => this.$refs.password.focus(),
-                onFinish       : () => this.form.reset(),
-            });
-        },
-
-        closeModal() {
-            this.confirmingLogout = false;
-
-            this.form.reset();
-        },
-    },
-});
-</script>
